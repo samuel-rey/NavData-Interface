@@ -1,0 +1,44 @@
+﻿using AviationCalcUtilNet.GeoTools;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace NavData_Interface.Objects.Fix.Navaid
+{
+    public class VhfNavaid : Navaid
+    {
+        public string AirportIdentifier { get; }
+        public string VorIdentifier { get; }
+        public string DmeIdent { get; }
+        public GeoPoint DmeLocation { get; }
+        public int DmeElevation { get; }
+        public double IlsDmeBias { get; }
+        public int Range { get; }
+        public double StationDeclination { get; }
+
+        public VhfNavaid(string identifier, 
+            GeoPoint location, 
+            string areaCode, 
+            string airportIdentifier, 
+            string icaoCode, 
+            string name, 
+            double frequency, 
+            string vorIdentifier, 
+            string dmeIdent, 
+            GeoPoint dmeLocation, 
+            int dmeElevation, 
+            double ilsDmeBias, 
+            int range, 
+            double stationDeclination) : base(areaCode, identifier, icaoCode, location, name, frequency)
+        {
+            AirportIdentifier = airportIdentifier;
+            VorIdentifier = vorIdentifier;
+            DmeIdent = dmeIdent;
+            DmeLocation = dmeLocation;
+            DmeElevation = dmeElevation;
+            IlsDmeBias = ilsDmeBias;
+            Range = range;
+            StationDeclination = stationDeclination;
+        }
+    }
+}
