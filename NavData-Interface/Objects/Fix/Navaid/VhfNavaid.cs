@@ -8,7 +8,7 @@ namespace NavData_Interface.Objects.Fix.Navaid
     public class VhfNavaid : Navaid
     {
         public string AirportIdentifier { get; }
-        public string VorIdentifier { get; }
+        public string VorIdentifier => Identifier;
         public string DmeIdent { get; }
         public GeoPoint DmeLocation { get; }
         public int DmeElevation { get; }
@@ -16,23 +16,21 @@ namespace NavData_Interface.Objects.Fix.Navaid
         public int Range { get; }
         public double StationDeclination { get; }
 
-        public VhfNavaid(string identifier, 
-            GeoPoint location, 
+        public VhfNavaid(GeoPoint location, 
             string areaCode, 
             string airportIdentifier, 
-            string icaoCode, 
+            string icaoCode,
+            string vorIdentifier,
             string name, 
-            double frequency, 
-            string vorIdentifier, 
+            double frequency,
             string dmeIdent, 
             GeoPoint dmeLocation, 
             int dmeElevation, 
             double ilsDmeBias, 
             int range, 
-            double stationDeclination) : base(areaCode, identifier, icaoCode, location, name, frequency)
+            double stationDeclination) : base(areaCode, vorIdentifier, icaoCode, location, name, frequency)
         {
             AirportIdentifier = airportIdentifier;
-            VorIdentifier = vorIdentifier;
             DmeIdent = dmeIdent;
             DmeLocation = dmeLocation;
             DmeElevation = dmeElevation;
