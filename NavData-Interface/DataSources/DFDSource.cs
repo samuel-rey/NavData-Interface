@@ -7,7 +7,7 @@ using AviationCalcUtilNet.GeoTools;
 
 namespace NavData_Interface.DataSources
 {
-    internal class DFDSource : DataSource
+    public class DFDSource : IDataSource
     {
         private SQLiteConnection _connection;
 
@@ -17,7 +17,7 @@ namespace NavData_Interface.DataSources
             _connection.Open();
         }
 
-        public override List<TerminalWaypoint> GetTerminalWaypoints(string identifier)
+        public List<TerminalWaypoint> GetTerminalWaypoints(string identifier)
         {
             return GetObjects<TerminalWaypoint>("tbl_terminal_waypoints", "waypoint_identifier", identifier, reader =>
             {
@@ -35,7 +35,7 @@ namespace NavData_Interface.DataSources
             });
         }
 
-        public override List<Waypoint> GetEnrouteWaypoints(string identifier)
+        public List<Waypoint> GetEnrouteWaypoints(string identifier)
         {
             return GetObjects<Waypoint>("tbl_enroute_waypoints", "waypoint_identifier", identifier, reader =>
             {
@@ -52,7 +52,7 @@ namespace NavData_Interface.DataSources
             });
         }
 
-        private List<T> GetObjects<T>(string tableName, string keyColumn, string keyValue, Func<SQLiteDataReader, T> objectFactory)
+        internal List<T> GetObjects<T>(string tableName, string keyColumn, string keyValue, Func<SQLiteDataReader, T> objectFactory)
         {
             var objects = new List<T>();
 
@@ -61,17 +61,45 @@ namespace NavData_Interface.DataSources
                 cmd.CommandText = $"SELECT * FROM {tableName} WHERE {keyColumn} = @keyValue";
                 cmd.Parameters.AddWithValue("@keyValue", keyValue);
 
-                using (var reader = cmd.ExecuteReader())
+                objects = GetObjectsWithQuery<T>(cmd, objectFactory);
+            }
+
+            return objects;
+        }
+
+        internal List<T> GetObjectsWithQuery<T>(SQLiteCommand cmd, Func<SQLiteDataReader, T> objectFactory)
+        {
+            var objects = new List<T>();
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var obj = objectFactory(reader);
-                        objects.Add(obj);
-                    }
+                    var obj = objectFactory(reader);
+                    objects.Add(obj);
                 }
             }
 
             return objects;
+        }
+
+        List<Fix> IDataSource.GetFixesByIdentifier(string identifier)
+        {
+            List<Fix> foundFixes = new List<Fix>();
+
+            foreach (var enrouteWaypoint in this.GetEnrouteWaypoints(identifier))
+            {
+                foundFixes.Add(enrouteWaypoint);
+            }
+
+            foreach (var terminalWaypoint in this.GetTerminalWaypoints(identifier))
+            {
+                foundFixes.Add(terminalWaypoint);
+            }
+
+            // TODO: also find Navaids
+
+            return foundFixes;
         }
     }
 }

@@ -5,11 +5,8 @@ using System.Text;
 
 namespace NavData_Interface.DataSources
 {
-    internal abstract class DataSource
+    public interface IDataSource
     {
-
-        public abstract List<TerminalWaypoint> GetTerminalWaypoints(string identifier);
-
-        public abstract List<Waypoint> GetEnrouteWaypoints(string identifier);
+        List<Fix> GetFixesByIdentifier(string identifier);
     }
 }
