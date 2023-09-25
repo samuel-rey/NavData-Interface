@@ -10,6 +10,13 @@ namespace NavData_Interface.DataSources.DFDUtility.Factory
     {
         internal static VhfNavaid Factory(SQLiteDataReader reader)
         {
+            // these may be null. In that case, set to 0.
+            var ilsdme_bias_string = reader["ilsdme_bias"].ToString();
+            var ilsdme_bias = ilsdme_bias_string == "" ? 0 : Double.Parse(ilsdme_bias_string);
+
+            var station_declination_string = reader["station_declination"].ToString();
+            var station_declination = station_declination_string == "" ? 0 : Double.Parse(station_declination_string);
+
             var navaid = new VhfNavaid
                 (
                 SQLHelper.locationFromColumns(reader, "vor_latitude", "vor_longitude"),
@@ -22,9 +29,9 @@ namespace NavData_Interface.DataSources.DFDUtility.Factory
                 reader["dme_ident"].ToString(),
                 SQLHelper.locationFromColumns(reader, "dme_latitude", "dme_longitude"),
                 Int32.Parse(reader["dme_elevation"].ToString()),
-                Double.Parse(reader["ilsdme_bias"].ToString()),
+                ilsdme_bias,
                 Int32.Parse(reader["range"].ToString()),
-                Double.Parse(reader["station_declination"].ToString())
+                station_declination
                 );
 
             return navaid;

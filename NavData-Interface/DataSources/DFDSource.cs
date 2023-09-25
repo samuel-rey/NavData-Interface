@@ -20,40 +20,39 @@ namespace NavData_Interface.DataSources
             _connection.Open();
         }
 
-        public List<TerminalWaypoint> GetTerminalWaypoints(string identifier)
+        private SQLiteCommand WaypointLookupByIdentifier(bool isTerminal, string identifier)
         {
-            return GetObjects<TerminalWaypoint>("tbl_terminal_waypoints", "waypoint_identifier", identifier, reader =>
+            var table = isTerminal ? "tbl_terminal_waypoints" : "tbl_enroute_waypoints";
+
+            var cmd = new SQLiteCommand(_connection)
             {
-                var waypoint = new TerminalWaypoint(
-                    reader["waypoint_identifier"].ToString(),
-                    SQLHelper.locationFromColumns(reader, "waypoint_latitude", "waypoint_longitude"),
-                    reader["area_code"].ToString(),
-                    reader["icao_code"].ToString(),
-                    reader["region_code"].ToString()
-                );
-                return waypoint;
-            });
+                CommandText = $"SELECT * FROM {table} WHERE waypoint_identifier = @identifier"
+            };
+
+            cmd.Parameters.AddWithValue("@identifier", identifier);
+
+            return cmd;
         }
 
-        public List<Waypoint> GetEnrouteWaypoints(string identifier)
+        public List<Waypoint> GetWaypointsByIdentifier(string identifier)
         {
-            return GetObjects<Waypoint>("tbl_enroute_waypoints", "waypoint_identifier", identifier, reader =>
+            // We need to combine terminal and enroute waypoints
+            
+            List<Waypoint> waypoints = GetObjectsWithQuery<Waypoint>(WaypointLookupByIdentifier(true, identifier), reader => WaypointFactory.Factory(reader));
+            foreach (var waypoint in GetObjectsWithQuery<Waypoint>(WaypointLookupByIdentifier(false, identifier), reader => WaypointFactory.Factory(reader)))
             {
-                var waypoint = new Waypoint(
-                    reader["waypoint_identifier"].ToString(),
-                    SQLHelper.locationFromColumns(reader, "waypoint_latitude", "waypoint_longitude"),
-                    reader["area_code"].ToString(),
-                    reader["icao_code"].ToString()
-                );
-                return waypoint;
-            });
+                waypoints.Add(waypoint);
+            }
+
+            return waypoints;
         }
 
         private SQLiteCommand VhfNavaidLookupByIdentifier(string identifier)
         {
-            var cmd = new SQLiteCommand(_connection);
-
-            cmd.CommandText = $"SELECT * from tbl_vhfnavaids WHERE vor_identifier = @identifier OR dme_ident = @identifier";
+            var cmd = new SQLiteCommand(_connection)
+            {
+                CommandText = $"SELECT * from tbl_vhfnavaids WHERE vor_identifier = @identifier OR dme_ident = @identifier"
+            };
             cmd.Parameters.AddWithValue("@identifier", identifier);
 
             return cmd;
@@ -68,6 +67,31 @@ namespace NavData_Interface.DataSources
             return navaids;
         }
 
+        public SQLiteCommand NdbLookupByIdentifier(bool isTerminal, string identifier)
+        {
+            var table = isTerminal ? "tbl_terminal_ndbnavaids" : "tbl_enroute_ndbnavaids";
+
+            var cmd = new SQLiteCommand(_connection)
+            {
+                CommandText = $"SELECT * FROM {table} WHERE ndb_identifier = @identifier"
+            };
+
+            cmd.Parameters.AddWithValue("@identifier", identifier);
+
+            return cmd;
+        }
+
+        public List<Ndb> GetNdbsByIdentifier(string identifier)
+        {
+            List<Ndb> ndbs = GetObjectsWithQuery<Ndb>(NdbLookupByIdentifier(true, identifier), reader => NdbFactory.Factory(reader));
+            foreach (var ndb in GetObjectsWithQuery<Ndb>(NdbLookupByIdentifier(false, identifier), reader => NdbFactory.Factory(reader)))
+            {
+                ndbs.Add(ndb);
+            }
+
+            return ndbs;
+        }
+
         public List<Navaid> GetNavaidsByIdentifier(string identifier)
         {
             var navaids = new List<Navaid>();
@@ -77,31 +101,19 @@ namespace NavData_Interface.DataSources
                 navaids.Add(vhfNavaid);
             }
 
-            return navaids;
-        }
-
-        internal List<T> GetObjects<T>(string tableName, string keyColumn, string keyValue, Func<SQLiteDataReader, T> objectFactory)
-        {
-            var objects = new List<T>();
-
-            using (var cmd = new SQLiteCommand(_connection))
+            foreach (var ndbNavaid in GetNdbsByIdentifier(identifier))
             {
-                cmd.CommandText = $"SELECT * FROM {tableName} WHERE {keyColumn} = @keyValue";
-                /*cmd.Parameters.AddWithValue("@tableName", tableName);
-                cmd.Parameters.AddWithValue("@keyColumn", keyColumn);*/
-                cmd.Parameters.AddWithValue("@keyValue", keyValue);
-
-                objects = GetObjectsWithQuery<T>(cmd, objectFactory);
+                navaids.Add(ndbNavaid);
             }
 
-            return objects;
+            return navaids;
         }
 
         internal List<T> GetObjectsWithQuery<T>(SQLiteCommand cmd, Func<SQLiteDataReader, T> objectFactory)
         {
             var objects = new List<T>();
 
-            using ( var reader = cmd.ExecuteReader())
+            using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
                 {
@@ -117,14 +129,9 @@ namespace NavData_Interface.DataSources
         {
             List<Fix> foundFixes = new List<Fix>();
 
-            foreach (var enrouteWaypoint in this.GetEnrouteWaypoints(identifier))
+            foreach (var waypoint in this.GetWaypointsByIdentifier(identifier))
             {
-                foundFixes.Add(enrouteWaypoint);
-            }
-
-            foreach (var terminalWaypoint in this.GetTerminalWaypoints(identifier))
-            {
-                foundFixes.Add(terminalWaypoint);
+                foundFixes.Add(waypoint);
             }
 
             foreach (var navaid in this.GetNavaidsByIdentifier(identifier))
