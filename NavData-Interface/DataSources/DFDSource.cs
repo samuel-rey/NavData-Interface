@@ -4,6 +4,9 @@ using System.Text;
 using System.Data.SQLite;
 using NavData_Interface.Objects.Fix;
 using AviationCalcUtilNet.GeoTools;
+using NavData_Interface.Objects.Fix.Navaid;
+using NavData_Interface.DataSources.DFDUtility;
+using NavData_Interface.DataSources.DFDUtility.Factory;
 
 namespace NavData_Interface.DataSources
 {
@@ -23,10 +26,7 @@ namespace NavData_Interface.DataSources
             {
                 var waypoint = new TerminalWaypoint(
                     reader["waypoint_identifier"].ToString(),
-                    new GeoPoint(
-                        double.Parse(reader["waypoint_latitude"].ToString()),
-                        double.Parse(reader["waypoint_longitude"].ToString())
-                    ),
+                    SQLHelper.locationFromColumns(reader, "waypoint_latitude", "waypoint_longitude"),
                     reader["area_code"].ToString(),
                     reader["icao_code"].ToString(),
                     reader["region_code"].ToString()
@@ -41,15 +41,43 @@ namespace NavData_Interface.DataSources
             {
                 var waypoint = new Waypoint(
                     reader["waypoint_identifier"].ToString(),
-                    new GeoPoint(
-                        double.Parse(reader["waypoint_latitude"].ToString()),
-                        double.Parse(reader["waypoint_longitude"].ToString())
-                    ),
+                    SQLHelper.locationFromColumns(reader, "waypoint_latitude", "waypoint_longitude"),
                     reader["area_code"].ToString(),
                     reader["icao_code"].ToString()
                 );
                 return waypoint;
             });
+        }
+
+        private SQLiteCommand VhfNavaidLookupByIdentifier(string identifier)
+        {
+            var cmd = new SQLiteCommand(_connection);
+
+            cmd.CommandText = $"SELECT * from tbl_vhfnavaids WHERE vor_identifier = @identifier OR dme_ident = @identifier";
+            cmd.Parameters.AddWithValue("@identifier", identifier);
+
+            return cmd;
+        }
+
+        public List<VhfNavaid> GetVhfNavaidsByIdentifier(string identifier)
+        {
+            List<VhfNavaid> navaids = GetObjectsWithQuery<VhfNavaid>(
+                VhfNavaidLookupByIdentifier(identifier), 
+                reader => VhfNavaidFactory.Factory(reader));
+
+            return navaids;
+        }
+
+        public List<Navaid> GetNavaidsByIdentifier(string identifier)
+        {
+            var navaids = new List<Navaid>();
+
+            foreach (var vhfNavaid in GetVhfNavaidsByIdentifier(identifier))
+            {
+                navaids.Add(vhfNavaid);
+            }
+
+            return navaids;
         }
 
         internal List<T> GetObjects<T>(string tableName, string keyColumn, string keyValue, Func<SQLiteDataReader, T> objectFactory)
@@ -59,6 +87,8 @@ namespace NavData_Interface.DataSources
             using (var cmd = new SQLiteCommand(_connection))
             {
                 cmd.CommandText = $"SELECT * FROM {tableName} WHERE {keyColumn} = @keyValue";
+                /*cmd.Parameters.AddWithValue("@tableName", tableName);
+                cmd.Parameters.AddWithValue("@keyColumn", keyColumn);*/
                 cmd.Parameters.AddWithValue("@keyValue", keyValue);
 
                 objects = GetObjectsWithQuery<T>(cmd, objectFactory);
@@ -71,7 +101,7 @@ namespace NavData_Interface.DataSources
         {
             var objects = new List<T>();
 
-            using (var reader = cmd.ExecuteReader())
+            using ( var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
                 {
@@ -97,7 +127,10 @@ namespace NavData_Interface.DataSources
                 foundFixes.Add(terminalWaypoint);
             }
 
-            // TODO: also find Navaids
+            foreach (var navaid in this.GetNavaidsByIdentifier(identifier))
+            {
+                foundFixes.Add(navaid);
+            }
 
             return foundFixes;
         }
