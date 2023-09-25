@@ -13,7 +13,7 @@ namespace NavData_Interface.Objects.Fix.Navaid
         public GeoPoint DmeLocation { get; }
         public int DmeElevation { get; }
         public double IlsDmeBias { get; }
-        public int Range { get; }
+
         public double StationDeclination { get; }
 
         public VhfNavaid(GeoPoint location, 
@@ -28,14 +28,13 @@ namespace NavData_Interface.Objects.Fix.Navaid
             int dmeElevation, 
             double ilsDmeBias, 
             int range, 
-            double stationDeclination) : base(areaCode, vorIdentifier, icaoCode, location, name, frequency)
+            double stationDeclination) : base(areaCode, vorIdentifier, icaoCode, location, name, frequency, range)
         {
             AirportIdentifier = airportIdentifier;
             DmeIdent = dmeIdent;
             DmeLocation = dmeLocation;
             DmeElevation = dmeElevation;
             IlsDmeBias = ilsDmeBias;
-            Range = range;
             StationDeclination = stationDeclination;
         }
     }

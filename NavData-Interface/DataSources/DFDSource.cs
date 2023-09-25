@@ -4,6 +4,9 @@ using System.Text;
 using System.Data.SQLite;
 using NavData_Interface.Objects.Fix;
 using AviationCalcUtilNet.GeoTools;
+using NavData_Interface.Objects.Fix.Navaid;
+using NavData_Interface.DataSources.DFDUtility;
+using NavData_Interface.DataSources.DFDUtility.Factory;
 
 namespace NavData_Interface.DataSources
 {
@@ -17,54 +20,93 @@ namespace NavData_Interface.DataSources
             _connection.Open();
         }
 
-        public List<TerminalWaypoint> GetTerminalWaypoints(string identifier)
+        private SQLiteCommand WaypointLookupByIdentifier(bool isTerminal, string identifier)
         {
-            return GetObjects<TerminalWaypoint>("tbl_terminal_waypoints", "waypoint_identifier", identifier, reader =>
+            var table = isTerminal ? "tbl_terminal_waypoints" : "tbl_enroute_waypoints";
+
+            var cmd = new SQLiteCommand(_connection)
             {
-                var waypoint = new TerminalWaypoint(
-                    reader["waypoint_identifier"].ToString(),
-                    new GeoPoint(
-                        double.Parse(reader["waypoint_latitude"].ToString()),
-                        double.Parse(reader["waypoint_longitude"].ToString())
-                    ),
-                    reader["area_code"].ToString(),
-                    reader["icao_code"].ToString(),
-                    reader["region_code"].ToString()
-                );
-                return waypoint;
-            });
+                CommandText = $"SELECT * FROM {table} WHERE waypoint_identifier = @identifier"
+            };
+
+            cmd.Parameters.AddWithValue("@identifier", identifier);
+
+            return cmd;
         }
 
-        public List<Waypoint> GetEnrouteWaypoints(string identifier)
+        public List<Waypoint> GetWaypointsByIdentifier(string identifier)
         {
-            return GetObjects<Waypoint>("tbl_enroute_waypoints", "waypoint_identifier", identifier, reader =>
+            // We need to combine terminal and enroute waypoints
+            
+            List<Waypoint> waypoints = GetObjectsWithQuery<Waypoint>(WaypointLookupByIdentifier(true, identifier), reader => WaypointFactory.Factory(reader));
+            foreach (var waypoint in GetObjectsWithQuery<Waypoint>(WaypointLookupByIdentifier(false, identifier), reader => WaypointFactory.Factory(reader)))
             {
-                var waypoint = new Waypoint(
-                    reader["waypoint_identifier"].ToString(),
-                    new GeoPoint(
-                        double.Parse(reader["waypoint_latitude"].ToString()),
-                        double.Parse(reader["waypoint_longitude"].ToString())
-                    ),
-                    reader["area_code"].ToString(),
-                    reader["icao_code"].ToString()
-                );
-                return waypoint;
-            });
-        }
-
-        internal List<T> GetObjects<T>(string tableName, string keyColumn, string keyValue, Func<SQLiteDataReader, T> objectFactory)
-        {
-            var objects = new List<T>();
-
-            using (var cmd = new SQLiteCommand(_connection))
-            {
-                cmd.CommandText = $"SELECT * FROM {tableName} WHERE {keyColumn} = @keyValue";
-                cmd.Parameters.AddWithValue("@keyValue", keyValue);
-
-                objects = GetObjectsWithQuery<T>(cmd, objectFactory);
+                waypoints.Add(waypoint);
             }
 
-            return objects;
+            return waypoints;
+        }
+
+        private SQLiteCommand VhfNavaidLookupByIdentifier(string identifier)
+        {
+            var cmd = new SQLiteCommand(_connection)
+            {
+                CommandText = $"SELECT * from tbl_vhfnavaids WHERE vor_identifier = @identifier OR dme_ident = @identifier"
+            };
+            cmd.Parameters.AddWithValue("@identifier", identifier);
+
+            return cmd;
+        }
+
+        public List<VhfNavaid> GetVhfNavaidsByIdentifier(string identifier)
+        {
+            List<VhfNavaid> navaids = GetObjectsWithQuery<VhfNavaid>(
+                VhfNavaidLookupByIdentifier(identifier), 
+                reader => VhfNavaidFactory.Factory(reader));
+
+            return navaids;
+        }
+
+        public SQLiteCommand NdbLookupByIdentifier(bool isTerminal, string identifier)
+        {
+            var table = isTerminal ? "tbl_terminal_ndbnavaids" : "tbl_enroute_ndbnavaids";
+
+            var cmd = new SQLiteCommand(_connection)
+            {
+                CommandText = $"SELECT * FROM {table} WHERE ndb_identifier = @identifier"
+            };
+
+            cmd.Parameters.AddWithValue("@identifier", identifier);
+
+            return cmd;
+        }
+
+        public List<Ndb> GetNdbsByIdentifier(string identifier)
+        {
+            List<Ndb> ndbs = GetObjectsWithQuery<Ndb>(NdbLookupByIdentifier(true, identifier), reader => NdbFactory.Factory(reader));
+            foreach (var ndb in GetObjectsWithQuery<Ndb>(NdbLookupByIdentifier(false, identifier), reader => NdbFactory.Factory(reader)))
+            {
+                ndbs.Add(ndb);
+            }
+
+            return ndbs;
+        }
+
+        public List<Navaid> GetNavaidsByIdentifier(string identifier)
+        {
+            var navaids = new List<Navaid>();
+
+            foreach (var vhfNavaid in GetVhfNavaidsByIdentifier(identifier))
+            {
+                navaids.Add(vhfNavaid);
+            }
+
+            foreach (var ndbNavaid in GetNdbsByIdentifier(identifier))
+            {
+                navaids.Add(ndbNavaid);
+            }
+
+            return navaids;
         }
 
         internal List<T> GetObjectsWithQuery<T>(SQLiteCommand cmd, Func<SQLiteDataReader, T> objectFactory)
@@ -87,17 +129,15 @@ namespace NavData_Interface.DataSources
         {
             List<Fix> foundFixes = new List<Fix>();
 
-            foreach (var enrouteWaypoint in this.GetEnrouteWaypoints(identifier))
+            foreach (var waypoint in this.GetWaypointsByIdentifier(identifier))
             {
-                foundFixes.Add(enrouteWaypoint);
+                foundFixes.Add(waypoint);
             }
 
-            foreach (var terminalWaypoint in this.GetTerminalWaypoints(identifier))
+            foreach (var navaid in this.GetNavaidsByIdentifier(identifier))
             {
-                foundFixes.Add(terminalWaypoint);
+                foundFixes.Add(navaid);
             }
-
-            // TODO: also find Navaids
 
             return foundFixes;
         }
