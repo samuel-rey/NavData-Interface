@@ -11,7 +11,7 @@ using NavData_Interface.Objects;
 
 namespace NavData_Interface.DataSources
 {
-    public class DFDSource : IDataSource
+    public class DFDSource : DataSource
     {
         private SQLiteConnection _connection;
 
@@ -21,6 +21,7 @@ namespace NavData_Interface.DataSources
             _connection.Open();
         }
 
+        override
         public Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
         {
             var foundLocs = GetObjectsWithQuery<Localizer>(LocalizerLookupByAirportRunway(airportIdentifier, runwayIdentifier), reader => LocalizerFactory.Factory(reader));
@@ -179,7 +180,8 @@ namespace NavData_Interface.DataSources
             return objects;
         }
 
-        List<Fix> IDataSource.GetFixesByIdentifier(string identifier)
+        override
+        public List<Fix> GetFixesByIdentifier(string identifier)
         {
             List<Fix> foundFixes = new List<Fix>();
 

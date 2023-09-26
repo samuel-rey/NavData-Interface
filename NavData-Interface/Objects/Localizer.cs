@@ -99,11 +99,18 @@ namespace NavData_Interface.Objects
                 Glideslope = null;
             } else
             { // if we are CATI/II/III, but no glideslope was passed, our category should be LocalizerOnly instead
-                if (loc_category == IlsCategory.CATI || loc_category == IlsCategory.CATII || loc_category == IlsCategory.CATIII
-                    && (glideslope == null))
+                if (glideslope == null)
                 {
-                    Loc_category = IlsCategory.LocalizerOnly;
-                } else
+                    if (loc_category == IlsCategory.CATI || loc_category == IlsCategory.CATII || loc_category == IlsCategory.CATIII)
+                    {
+                        Loc_category = IlsCategory.LocalizerOnly;
+                    }
+                    if (loc_category == IlsCategory.IGS)
+                    {
+                        Loc_category = IlsCategory.LDA;
+                    }
+                }
+                else
                 { // the pair is valid. just set it.
                     Loc_category = loc_category;
                     Glideslope = glideslope;
