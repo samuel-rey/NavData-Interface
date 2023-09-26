@@ -10,10 +10,19 @@ namespace NavData_Interface_Tests
         public static void Main()
         {
             TestGetClosestWaypoint();
+            Console.WriteLine();
             TestGetNavaidByIdentifier("LAM");
+            Console.WriteLine();
             TestGetNavaidByIdentifier("LBA");
+            Console.WriteLine();
             TestGetAirportByIdentifier("EGKK");
+            Console.WriteLine();
             TestGetAirportByIdentifier("KLAX");
+            Console.WriteLine();
+            TestGetLocalizer("LEMD", "32L");
+            Console.WriteLine();
+            TestGetLocalizer("EGKK", "26L");
+            Console.WriteLine();
         }
 
         public static void TestGetWaypointLocation()
@@ -70,6 +79,21 @@ namespace NavData_Interface_Tests
             } else
             {
                 Console.WriteLine($"Airport {airport.Identifier}, named {airport.Name}, is located ({airport.Location.Lat}, {airport.Location.Lat}).");
+            }
+        }
+
+        public static void TestGetLocalizer(string airport, string runway)
+        {
+            var navDataInterface = new DFDSource("e_dfd_2301.s3db");
+
+            var localizer = navDataInterface.GetLocalizerFromAirportRunway(airport, runway);
+
+            if (localizer == null)
+            {
+                throw new Exception();
+            } else
+            {
+                Console.WriteLine(localizer);
             }
         }
     }
