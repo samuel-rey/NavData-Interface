@@ -7,6 +7,7 @@ using AviationCalcUtilNet.GeoTools;
 using NavData_Interface.Objects.Fix.Navaid;
 using NavData_Interface.DataSources.DFDUtility;
 using NavData_Interface.DataSources.DFDUtility.Factory;
+using NavData_Interface.Objects;
 
 namespace NavData_Interface.DataSources
 {
@@ -18,6 +19,28 @@ namespace NavData_Interface.DataSources
         {
             _connection = new SQLiteConnection($"Data Source={filePath};Version=3;");
             _connection.Open();
+        }
+
+        public Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
+        {
+            var foundLocs = GetObjectsWithQuery<Localizer>(LocalizerLookupByAirportRunway(airportIdentifier, runwayIdentifier), reader => LocalizerFactory.Factory(reader));
+
+            return foundLocs[0];
+        }
+
+        private SQLiteCommand LocalizerLookupByAirportRunway(string airportIdentifier, string runwayIdentifier)
+        {
+            runwayIdentifier = "RW" + runwayIdentifier;
+            
+            var cmd = new SQLiteCommand(_connection)
+            {
+                CommandText = $"SELECT * from tbl_localizers_glideslopes WHERE airport_identifier = @airportIdentifier AND runway_identifier = @runwayIdentifier"
+            };
+
+            cmd.Parameters.AddWithValue("@airportIdentifier", airportIdentifier);
+            cmd.Parameters.AddWithValue("@runwayIdentifier", runwayIdentifier);
+
+            return cmd;
         }
 
         private SQLiteCommand AirportLookupByIdentifier(string identifier)
