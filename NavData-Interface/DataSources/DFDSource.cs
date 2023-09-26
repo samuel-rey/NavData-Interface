@@ -20,6 +20,33 @@ namespace NavData_Interface.DataSources
             _connection.Open();
         }
 
+        private SQLiteCommand AirportLookupByIdentifier(string identifier)
+        {
+            var cmd = new SQLiteCommand(_connection)
+            {
+                CommandText = $"SELECT * FROM tbl_airports WHERE airport_identifier = @identifier"
+            };
+
+            cmd.Parameters.AddWithValue("@identifier", identifier);
+
+            return cmd;
+        }
+
+        public Airport GetAirportByIdentifier(string identifier)
+        {
+            var airports = GetObjectsWithQuery<Airport>(AirportLookupByIdentifier(identifier), reader => AirportFactory.Factory(reader));
+
+            if (airports.Count == 1)
+            {
+                return airports[0];
+            } else if (airports.Count > 1)
+            {
+                Console.Error.WriteLine($"Found two airport results for {identifier}. This should never happen!");
+            }
+
+            return null;
+        }
+
         private SQLiteCommand WaypointLookupByIdentifier(bool isTerminal, string identifier)
         {
             var table = isTerminal ? "tbl_terminal_waypoints" : "tbl_enroute_waypoints";
@@ -36,7 +63,7 @@ namespace NavData_Interface.DataSources
 
         public List<Waypoint> GetWaypointsByIdentifier(string identifier)
         {
-            // We need to combine terminal and enroute waypoints
+            // We need to combine enroute + terminal waypoints
             
             List<Waypoint> waypoints = GetObjectsWithQuery<Waypoint>(WaypointLookupByIdentifier(true, identifier), reader => WaypointFactory.Factory(reader));
             foreach (var waypoint in GetObjectsWithQuery<Waypoint>(WaypointLookupByIdentifier(false, identifier), reader => WaypointFactory.Factory(reader)))
@@ -83,6 +110,8 @@ namespace NavData_Interface.DataSources
 
         public List<Ndb> GetNdbsByIdentifier(string identifier)
         {
+            // We need to combine enroute + terminal NDBs
+
             List<Ndb> ndbs = GetObjectsWithQuery<Ndb>(NdbLookupByIdentifier(true, identifier), reader => NdbFactory.Factory(reader));
             foreach (var ndb in GetObjectsWithQuery<Ndb>(NdbLookupByIdentifier(false, identifier), reader => NdbFactory.Factory(reader)))
             {
@@ -94,6 +123,8 @@ namespace NavData_Interface.DataSources
 
         public List<Navaid> GetNavaidsByIdentifier(string identifier)
         {
+            // We get all VHF Navaids + all NDBs with this ident
+
             var navaids = new List<Navaid>();
 
             foreach (var vhfNavaid in GetVhfNavaidsByIdentifier(identifier))
@@ -137,6 +168,13 @@ namespace NavData_Interface.DataSources
             foreach (var navaid in this.GetNavaidsByIdentifier(identifier))
             {
                 foundFixes.Add(navaid);
+            }
+
+            var airport = GetAirportByIdentifier(identifier);
+
+            if (airport != null)
+            {
+                foundFixes.Add(airport);
             }
 
             return foundFixes;

@@ -12,6 +12,8 @@ namespace NavData_Interface_Tests
             TestGetClosestWaypoint();
             TestGetNavaidByIdentifier("LAM");
             TestGetNavaidByIdentifier("LBA");
+            TestGetAirportByIdentifier("EGKK");
+            TestGetAirportByIdentifier("KLAX");
         }
 
         public static void TestGetWaypointLocation()
@@ -53,6 +55,21 @@ namespace NavData_Interface_Tests
             else
             {
                 Console.WriteLine($"Navaid with ICAO code {navaidIdentifier} not found.");
+            }
+        }
+
+        public static void TestGetAirportByIdentifier(string identifier)
+        {
+            var navDataInterface = new DFDSource("e_dfd_2301.s3db");
+
+            var airport = navDataInterface.GetAirportByIdentifier(identifier);
+
+            if (airport == null)
+            {
+                throw new Exception();
+            } else
+            {
+                Console.WriteLine($"Airport {airport.Identifier}, named {airport.Name}, is located ({airport.Location.Lat}, {airport.Location.Lat}).");
             }
         }
     }
