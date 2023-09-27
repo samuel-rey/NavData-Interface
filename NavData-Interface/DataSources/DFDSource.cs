@@ -7,10 +7,11 @@ using AviationCalcUtilNet.GeoTools;
 using NavData_Interface.Objects.Fix.Navaid;
 using NavData_Interface.DataSources.DFDUtility;
 using NavData_Interface.DataSources.DFDUtility.Factory;
+using NavData_Interface.Objects;
 
 namespace NavData_Interface.DataSources
 {
-    public class DFDSource : IDataSource
+    public class DFDSource : DataSource
     {
         private SQLiteConnection _connection;
 
@@ -63,6 +64,29 @@ namespace NavData_Interface.DataSources
             {
                 throw new Exception("The navigation data file is invalid.", e);
             }
+        }
+
+        override
+        public Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
+        {
+            var foundLocs = GetObjectsWithQuery<Localizer>(LocalizerLookupByAirportRunway(airportIdentifier, runwayIdentifier), reader => LocalizerFactory.Factory(reader));
+
+            return foundLocs[0];
+        }
+
+        private SQLiteCommand LocalizerLookupByAirportRunway(string airportIdentifier, string runwayIdentifier)
+        {
+            runwayIdentifier = "RW" + runwayIdentifier;
+            
+            var cmd = new SQLiteCommand(_connection)
+            {
+                CommandText = $"SELECT * from tbl_localizers_glideslopes WHERE airport_identifier = @airportIdentifier AND runway_identifier = @runwayIdentifier"
+            };
+
+            cmd.Parameters.AddWithValue("@airportIdentifier", airportIdentifier);
+            cmd.Parameters.AddWithValue("@runwayIdentifier", runwayIdentifier);
+
+            return cmd;
         }
 
         private SQLiteCommand AirportLookupByIdentifier(string identifier)
@@ -201,7 +225,8 @@ namespace NavData_Interface.DataSources
             return objects;
         }
 
-        List<Fix> IDataSource.GetFixesByIdentifier(string identifier)
+        override
+        public List<Fix> GetFixesByIdentifier(string identifier)
         {
             List<Fix> foundFixes = new List<Fix>();
 

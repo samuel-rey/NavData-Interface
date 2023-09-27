@@ -6,16 +6,16 @@ namespace NavData_Interface
 {
     public class NavDataInterface
     {
-        private IDataSource _dataSource;
+        public DataSource Data_source { get; }
 
-        public NavDataInterface(IDataSource dataSource)
+        public NavDataInterface(DataSource dataSource)
         {
-            _dataSource = dataSource;
+            Data_source = dataSource;
         }
 
         public Fix GetClosestFixByIdentifier(GeoPoint point, string identifier)
         {
-            var fixes = _dataSource.GetFixesByIdentifier(identifier);
+            var fixes = Data_source.GetFixesByIdentifier(identifier);
             Fix closestFix = null;
             double closestDistance = double.MaxValue;
 
