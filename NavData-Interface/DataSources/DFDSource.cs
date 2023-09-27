@@ -14,10 +14,55 @@ namespace NavData_Interface.DataSources
     {
         private SQLiteConnection _connection;
 
+        public string Airac_version { get; }
+
+        /// <summary>
+        /// Creates a new DFD data source.
+        /// </summary>
+        /// <param name="filePath">The path to the DFD file.</param>
+        /// <exception cref="System.IO.FileNotFoundException">If the provided file wasn't found</exception>
         public DFDSource(string filePath)
         {
-            _connection = new SQLiteConnection($"Data Source={filePath};Version=3;");
-            _connection.Open();
+            var connectionString = new SQLiteConnectionStringBuilder()
+            {
+                DataSource = filePath,
+                Version = 3,
+                ReadOnly = true
+            }.ToString();
+
+            _connection = new SQLiteConnection(connectionString);
+            
+            try
+            {
+                _connection.Open();
+            } catch (SQLiteException e) { 
+                if (e.ResultCode == SQLiteErrorCode.CantOpen)
+                {
+                    throw new System.IO.FileNotFoundException(filePath);
+                }
+            }
+
+            try
+            {
+                var cmd = new SQLiteCommand(_connection)
+                {
+                    CommandText = "SELECT * FROM tbl_header"
+                };
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        Airac_version = reader["current_airac"].ToString();
+                    } else
+                    {
+                        throw new FormatException("The navigation data file has an incorrect format.");
+                    }
+                }
+            } catch (Exception e)
+            {
+                throw new Exception("The navigation data file is invalid.", e);
+            }
         }
 
         private SQLiteCommand AirportLookupByIdentifier(string identifier)

@@ -18,7 +18,7 @@ namespace NavData_Interface_Tests
 
         public static void TestGetWaypointLocation()
         {
-            var dataSource = new DFDSource("e_dfd_2301.s3db");
+            var dataSource = new DFDSource("invalid_airac.s3db");
             var waypoints = dataSource.GetWaypointsByIdentifier("WILLO");
 
 
