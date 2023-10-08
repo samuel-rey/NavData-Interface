@@ -3,20 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>NavData_Interface</RootNamespace>
-    <Platforms>AnyCPU;x86</Platforms>
+    <Platforms>x86;x64</Platforms>
+	<RunId Condition="'$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Windows'))">win-$(Platform)</RunId>
+    <RunId Condition="'$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Linux'))">linux-$(Platform)</RunId>
+    <RunId Condition="'$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('OSX'))">osx-$(Platform)</RunId>
+    <RunId Condition="'$(RunId)' == ''">$(RuntimeIdentifier)</RunId>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="C:\Users\samue\.nuget\packages\pshivaraman.aviationcalcutilnet.win-x86\1.0.12\contentFiles\any\netstandard2.0\aviationcalc.dll" />
-    <Content Remove="C:\Users\samue\.nuget\packages\pshivaraman.aviationcalcutilnet.win-x86\1.0.12\contentFiles\any\netstandard2.0\boost_date_time.dll" />
-    <Content Remove="C:\Users\samue\.nuget\packages\pshivaraman.aviationcalcutilnet.win-x86\1.0.12\contentFiles\any\netstandard2.0\eccodes.dll" />
-    <Content Remove="C:\Users\samue\.nuget\packages\pshivaraman.aviationcalcutilnet.win-x86\1.0.12\contentFiles\any\netstandard2.0\eccodes_memfs.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="PShivaraman.AviationCalcUtilNet.win-x86" Version="1.0.12" />
+    <PackageReference Include="PShivaraman.AviationCalcUtilNet.$(RunId)" Version="1.0.12" />
     <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
   </ItemGroup>
+
 
 </Project>
