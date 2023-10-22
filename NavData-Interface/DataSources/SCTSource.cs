@@ -11,6 +11,9 @@ namespace NavData_Interface.DataSources
     {
         private List<Fix> _fixes;
         private object _fixesLock = new object();
+
+        public string FileName {get; private set; }
+
         public SCTSource(string filename)
         {
             _fixes = new List<Fix>();
@@ -79,6 +82,8 @@ namespace NavData_Interface.DataSources
                     }
                 }
             }
+
+            FileName = filename;
         }
 
         public override List<Fix> GetFixesByIdentifier(string identifier)
@@ -105,4 +110,3 @@ namespace NavData_Interface.DataSources
         }
     }
 }
-
