@@ -71,6 +71,11 @@ namespace NavData_Interface.DataSources
         {
             var foundLocs = GetObjectsWithQuery<Localizer>(LocalizerLookupByAirportRunway(airportIdentifier, runwayIdentifier), reader => LocalizerFactory.Factory(reader));
 
+            if (foundLocs.Count < 1)
+            {
+                return null;
+            }
+            
             return foundLocs[0];
         }
 
