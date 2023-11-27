@@ -87,7 +87,7 @@ namespace NavData_Interface.DataSources
             FileName = filename;
         }
 
-        public override List<Fix> GetFixesByIdentifier(string identifier)
+        public List<Fix> GetFixesByIdentifier(string identifier)
         {
             List<Fix> foundFixes = new List<Fix>();
 
@@ -105,7 +105,7 @@ namespace NavData_Interface.DataSources
             return foundFixes;
         }
 
-        public override Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
+        public Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
         {
             return null;
         }
@@ -116,7 +116,7 @@ namespace NavData_Interface.DataSources
         /// <param name="position">The centre point</param>
         /// <param name="radiusM">The radius in which to search for airports</param>
         /// <returns>The closest airport within the radius specified, or null if none found</returns>
-        public override Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
+        public Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
         {
             Airport closestAirport = null;
             double closestDistance = double.MaxValue;
@@ -137,6 +137,19 @@ namespace NavData_Interface.DataSources
                 }
             }
             return closestAirport;
+        }
+
+        public Airport GetAirportByIdentifier(string identifier)
+        {
+            foreach (var fix in _fixes)
+            {
+                if (fix is Airport && fix.Identifier == identifier)
+                {
+                    return (Airport)fix;
+                }
+            }
+
+            return null;
         }
     }
 }

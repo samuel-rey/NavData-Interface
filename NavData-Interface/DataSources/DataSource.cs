@@ -8,13 +8,14 @@ using System.Text;
 
 namespace NavData_Interface.DataSources
 {
-    public abstract class DataSource
+    public interface DataSource
     {
-        public abstract List<Fix> GetFixesByIdentifier(string identifier);
+        List<Fix> GetFixesByIdentifier(string identifier);
 
-        public abstract Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier);
+        Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier);
 
-        public abstract Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM);
+        Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM);
 
+        Airport GetAirportByIdentifier(string identifier);
     }
 }
