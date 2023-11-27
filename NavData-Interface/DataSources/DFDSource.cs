@@ -67,6 +67,7 @@ namespace NavData_Interface.DataSources
             }
         }
 
+        override
         public Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
         {
             var foundLocs = GetObjectsWithQuery<Localizer>(LocalizerLookupByAirportRunway(airportIdentifier, runwayIdentifier), reader => LocalizerFactory.Factory(reader));
@@ -300,6 +301,7 @@ namespace NavData_Interface.DataSources
             return objects;
         }
 
+        override
         public List<Fix> GetFixesByIdentifier(string identifier)
         {
             List<Fix> foundFixes = new List<Fix>();
@@ -330,7 +332,7 @@ namespace NavData_Interface.DataSources
         /// <param name="position">The centre of the square</param>
         /// <param name="radiusM">The distance from the centre to each side of the square</param>
         /// <returns>The closest airport within the square, or null if none found</returns>
-        public Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
+        public override Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
         {
             List<Airport> airports = GetObjectsWithQuery<Airport>(AirportsFilterByDistance(position, radiusM), reader => AirportFactory.Factory(reader));
 

@@ -51,7 +51,7 @@ namespace NavData_Interface.DataSources
             }
             return null;
         }
-        public List<Fix> GetFixesByIdentifier(string identifier)
+        public override List<Fix> GetFixesByIdentifier(string identifier)
         {
             List<Fix> retFixes = new List<Fix>();
 
@@ -65,7 +65,7 @@ namespace NavData_Interface.DataSources
             return retFixes;
         }
 
-        public Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
+        public override Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
         {
             foreach (Localizer loc in _locs)
             {
@@ -89,7 +89,7 @@ namespace NavData_Interface.DataSources
             return null;
         }
 
-        public Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
+        public override Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
         {
             Airport closestAirport = null;
             double bestDistance = double.MaxValue;
