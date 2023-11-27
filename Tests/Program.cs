@@ -2,28 +2,13 @@
 using AviationCalcUtilNet.GeoTools;
 using NavData_Interface;
 using NavData_Interface.DataSources;
+using NUnit.Framework;
 
 namespace NavData_Interface_Tests
 {
     public class Tests
     {
-        public static void Main()
-        {
-            TestGetClosestWaypoint();
-            Console.WriteLine();
-            TestGetNavaidByIdentifier("LAM");
-            Console.WriteLine();
-            TestGetNavaidByIdentifier("LBA");
-            Console.WriteLine();
-            TestGetAirportByIdentifier("EGKK");
-            Console.WriteLine();
-            TestGetAirportByIdentifier("KLAX");
-            Console.WriteLine();
-            TestGetLocalizer("LEMD", "32L");
-            Console.WriteLine();
-            TestGetLocalizer("EGKK", "26L");
-            Console.WriteLine();
-        }
+        
 
         public static void TestGetWaypointLocation()
         {
@@ -95,6 +80,21 @@ namespace NavData_Interface_Tests
             {
                 Console.WriteLine(localizer);
             }
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+
+        }
+
+        [Test]
+        public static void TestGetClosestAirportWithinRadius1()
+        {
+            var navDataInterface = new DFDSource("e_dfd_2311.s3db");
+            var westOfLoughNeagh = new GeoPoint(54.686784, -6.544965);
+            var closestAirport = navDataInterface.GetClosestAirportWithinRadius(westOfLoughNeagh, 30_000);
+            NUnit.Framework.Assert.AreEqual(closestAirport.Icao_code, "EGAA");
         }
     }
 }
