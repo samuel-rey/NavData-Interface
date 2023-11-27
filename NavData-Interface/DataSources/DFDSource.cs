@@ -8,6 +8,7 @@ using NavData_Interface.Objects.Fix.Navaid;
 using NavData_Interface.DataSources.DFDUtility;
 using NavData_Interface.DataSources.DFDUtility.Factory;
 using NavData_Interface.Objects;
+using AviationCalcUtilNet.MathTools;
 
 namespace NavData_Interface.DataSources
 {
@@ -182,6 +183,76 @@ namespace NavData_Interface.DataSources
             return cmd;
         }
 
+        public SQLiteCommand AirportsFilterByDistance(GeoPoint position, double radiusM)
+        {
+            radiusM = Math.Min(radiusM, MathUtil.ConvertNauticalMilesToMeters(100));
+
+            // Figure out where our extremities are
+            double leftLon, rightLon, bottomLat, topLat;
+            {
+                var leftPoint = new GeoPoint(position);
+                leftPoint.MoveByM(270.0, radiusM);
+                leftLon = leftPoint.Lon;
+
+                var rightPoint = new GeoPoint(position);
+                rightPoint.MoveByM(90.0, radiusM);
+                rightLon = rightPoint.Lon;
+
+                var bottomPoint = new GeoPoint(position);
+                bottomPoint.MoveByM(180.0, radiusM);
+                bottomLat = bottomPoint.Lat;
+
+                var topPoint = new GeoPoint(position);
+                topPoint.MoveByM(360.0, radiusM);
+                topLat = topPoint.Lat;
+            }
+
+            double maxLat = MathUtil.ConvertRadiansToDegrees(Math.Acos(radiusM / (GeoUtil.EARTH_RADIUS_M * Math.PI)));
+            if (topLat > maxLat)
+            {
+                leftLon = -180;
+                rightLon = 180;
+                topLat = 90;
+            }
+            else if (bottomLat < -maxLat)
+            {
+                leftLon = -180;
+                rightLon = 180;
+                bottomLat = -90;
+            }
+
+            if (rightLon <= leftLon)
+            {
+                // SELECT * from (airports) WHERE ((latitude) BETWEEN bottomlat AND topLAT) AND (longitude >= leftlon OR longitude <= right)
+                var cmd = new SQLiteCommand(_connection)
+                {
+                    CommandText = $"SELECT * FROM tbl_airports WHERE (airport_ref_latitude BETWEEN @bottomLat AND @topLat) AND (airport_ref_longitude >= @leftLon OR airport_ref_longitude <= @rightLon)"
+                };
+
+                cmd.Parameters.AddWithValue("@bottomLat", bottomLat);
+                cmd.Parameters.AddWithValue("@topLat", topLat);
+                cmd.Parameters.AddWithValue("@leftLon", leftLon);
+                cmd.Parameters.AddWithValue("@rightLon", rightLon);
+
+                return cmd;
+            }
+            else
+            {
+                // SELECT * FROM (airports) WHERE ((latitude) BETWEEN bottomlat AND topLAT) AND (longitude) BETWEEN leftlon AND rightlon)
+                var cmd = new SQLiteCommand(_connection)
+                {
+                    CommandText = $"SELECT * FROM tbl_airports WHERE (airport_ref_latitude BETWEEN @bottomLat AND @topLat) AND (airport_ref_longitude BETWEEN @leftLon AND @rightLon)"
+                };
+
+                cmd.Parameters.AddWithValue("@bottomLat", bottomLat);
+                cmd.Parameters.AddWithValue("@topLat", topLat);
+                cmd.Parameters.AddWithValue("@leftLon", leftLon);
+                cmd.Parameters.AddWithValue("@rightLon", rightLon);
+
+                return cmd;
+            }
+        }
+
         public List<Ndb> GetNdbsByIdentifier(string identifier)
         {
             // We need to combine enroute + terminal NDBs
@@ -253,6 +324,30 @@ namespace NavData_Interface.DataSources
             }
 
             return foundFixes;
+        }
+
+        /// <summary>
+        /// Gets the closest airport within a square.
+        /// </summary>
+        /// <param name="position">The centre of the square</param>
+        /// <param name="radiusM">The distance from the centre to each side of the square</param>
+        /// <returns>The closest airport within the square, or null if none found</returns>
+        public override Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
+        {
+            List<Airport> airports = GetObjectsWithQuery<Airport>(AirportsFilterByDistance(position, radiusM), reader => AirportFactory.Factory(reader));
+
+            Airport closestAirport = null;
+            double bestDistance = double.MaxValue;
+            foreach (var airport in airports)
+            {
+                var distance = GeoPoint.DistanceM(airport.Location, position);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    closestAirport = airport;
+                }
+            }
+            return closestAirport;
         }
     }
 }

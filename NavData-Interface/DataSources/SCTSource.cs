@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using AviationCalcUtilNet.GeoTools;
 using NavData_Interface.Objects;
 using NavData_Interface.Objects.Fix;
@@ -107,6 +108,35 @@ namespace NavData_Interface.DataSources
         public override Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
         {
             return null;
+        }
+
+        /// <summary>
+        /// Gets the closest airport within a defined radius
+        /// </summary>
+        /// <param name="position">The centre point</param>
+        /// <param name="radiusM">The radius in which to search for airports</param>
+        /// <returns>The closest airport within the radius specified, or null if none found</returns>
+        public override Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
+        {
+            Airport closestAirport = null;
+            double closestDistance = double.MaxValue;
+            foreach (var fix in _fixes)
+            {
+                if (fix.GetType() != typeof(Airport))
+                {
+                    continue;
+                }
+                double distanceM = GeoPoint.DistanceM(position, fix.Location);
+
+                if (distanceM > radiusM) { continue; }
+
+                if (distanceM < closestDistance)
+                {
+                    closestDistance = distanceM;
+                    closestAirport = (Airport)fix;
+                }
+            }
+            return closestAirport;
         }
     }
 }

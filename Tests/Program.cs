@@ -7,6 +7,7 @@ namespace NavData_Interface_Tests
 {
     public class Tests
     {
+
         public static void Main()
         {
             TestGetClosestWaypoint();
@@ -24,6 +25,7 @@ namespace NavData_Interface_Tests
             TestGetLocalizer("EGKK", "26L");
             Console.WriteLine();
         }
+
 
         public static void TestGetWaypointLocation()
         {
@@ -96,5 +98,7 @@ namespace NavData_Interface_Tests
                 Console.WriteLine(localizer);
             }
         }
+
+       
     }
 }
