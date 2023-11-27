@@ -1,14 +1,13 @@
 ﻿using AviationCalcUtilNet.GeoTools;
-using NavData_Interface.DataSources;
 using NavData_Interface.Objects.Fixes;
 
-namespace NavData_Interface
+namespace NavData_Interface.DataSources
 {
-    public class NavDataInterface
+    public class CombinedSource
     {
         public DataSource Data_source { get; }
 
-        public NavDataInterface(DataSource dataSource)
+        public CombinedSource(DataSource dataSource)
         {
             Data_source = dataSource;
         }

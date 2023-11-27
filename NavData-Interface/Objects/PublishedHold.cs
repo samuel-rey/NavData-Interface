@@ -5,7 +5,6 @@ using NavData_Interface.Objects.Fixes;
 
 namespace NavData_Interface.Objects
 {
-
     public enum HoldLegLengthTypeEnum
     {
         DEFAULT,
