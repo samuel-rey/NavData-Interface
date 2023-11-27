@@ -16,5 +16,23 @@ namespace NavData_Interface.DataSources
 
         public abstract Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM);
 
+        public Fix GetClosestFixByIdentifier(GeoPoint point, string identifier)
+        {
+            var fixes = GetFixesByIdentifier(identifier);
+            Fix closestFix = null;
+            double closestDistance = double.MaxValue;
+
+            foreach (var fix in fixes)
+            {
+                double distance = GeoPoint.DistanceM(point, fix.Location);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestFix = fix;
+                }
+            }
+
+            return closestFix;
+        }
     }
 }

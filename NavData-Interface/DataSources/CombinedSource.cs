@@ -1,9 +1,11 @@
 ﻿using AviationCalcUtilNet.GeoTools;
+using NavData_Interface.Objects;
 using NavData_Interface.Objects.Fixes;
+using System.Collections.Generic;
 
 namespace NavData_Interface.DataSources
 {
-    public class CombinedSource
+    public class CombinedSource : DataSource
     {
         public DataSource Data_source { get; }
 
@@ -12,23 +14,21 @@ namespace NavData_Interface.DataSources
             Data_source = dataSource;
         }
 
-        public Fix GetClosestFixByIdentifier(GeoPoint point, string identifier)
+        
+
+        public override List<Fix> GetFixesByIdentifier(string identifier)
         {
-            var fixes = Data_source.GetFixesByIdentifier(identifier);
-            Fix closestFix = null;
-            double closestDistance = double.MaxValue;
+            throw new System.NotImplementedException();
+        }
 
-            foreach (var fix in fixes)
-            {
-                double distance = GeoPoint.DistanceM(point, fix.Location);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestFix = fix;
-                }
-            }
+        public override Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier)
+        {
+            throw new System.NotImplementedException();
+        }
 
-            return closestFix;
+        public override Airport GetClosestAirportWithinRadius(GeoPoint position, double radiusM)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
