@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Data.SQLite;
-using NavData_Interface.Objects.Fix;
+using NavData_Interface.Objects.Fixes;
 using AviationCalcUtilNet.GeoTools;
-using NavData_Interface.Objects.Fix.Navaid;
+using NavData_Interface.Objects.Fixes.Navaids;
 using NavData_Interface.DataSources.DFDUtility;
 using NavData_Interface.DataSources.DFDUtility.Factory;
 using NavData_Interface.Objects;

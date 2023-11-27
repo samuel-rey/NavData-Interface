@@ -1,4 +1,4 @@
-﻿using NavData_Interface.Objects.Fix;
+﻿using NavData_Interface.Objects.Fixes;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;

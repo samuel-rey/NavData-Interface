@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using AviationCalcUtilNet.GeoTools;
 using NavData_Interface.Objects;
-using NavData_Interface.Objects.Fix;
-using NavData_Interface.Objects.Fix.Navaid;
+using NavData_Interface.Objects.Fixes;
+using NavData_Interface.Objects.Fixes.Navaids;
 
 namespace NavData_Interface.DataSources
 {

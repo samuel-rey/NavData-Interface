@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using NavData_Interface.Objects.Fix;
+using NavData_Interface.Objects.Fixes;
 
 namespace NavData_Interface.Objects
 {
@@ -22,13 +22,13 @@ namespace NavData_Interface.Objects
 
     public class PublishedHold
     {
-        private Fix.Fix _wp;
+        private Fix _wp;
         private double _inboundCourse;
         private HoldTurnDirectionEnum _turnDirection;
         private HoldLegLengthTypeEnum _lengthType;
         private double _legLength;
 
-        public PublishedHold(Fix.Fix wp, double inboundCourse, HoldTurnDirectionEnum turnDirection, HoldLegLengthTypeEnum legLengthType, double legLength)
+        public PublishedHold(Fix wp, double inboundCourse, HoldTurnDirectionEnum turnDirection, HoldLegLengthTypeEnum legLengthType, double legLength)
         {
             _wp = wp;
             _inboundCourse = inboundCourse;
@@ -37,19 +37,19 @@ namespace NavData_Interface.Objects
             _legLength = legLength;
         }
 
-        public PublishedHold(Fix.Fix wp, double inboundCourse, HoldTurnDirectionEnum turnDirection) :
+        public PublishedHold(Fix wp, double inboundCourse, HoldTurnDirectionEnum turnDirection) :
             this(wp, inboundCourse, turnDirection, HoldLegLengthTypeEnum.DEFAULT, -1)
         { }
 
-        public PublishedHold(Fix.Fix wp, double inboundCourse, HoldLegLengthTypeEnum legLengthType, double legLength) :
+        public PublishedHold(Fix wp, double inboundCourse, HoldLegLengthTypeEnum legLengthType, double legLength) :
             this(wp, inboundCourse, HoldTurnDirectionEnum.RIGHT, legLengthType, legLength)
         { }
 
-        public PublishedHold(Fix.Fix wp, double inboundCourse) :
+        public PublishedHold(Fix wp, double inboundCourse) :
             this(wp, inboundCourse, HoldTurnDirectionEnum.RIGHT, HoldLegLengthTypeEnum.DEFAULT, -1)
         { }
 
-        public Fix.Fix Waypoint => _wp;
+        public Fix Waypoint => _wp;
 
         public double InboundCourse => _inboundCourse;
 

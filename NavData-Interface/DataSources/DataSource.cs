@@ -1,6 +1,6 @@
 ﻿using AviationCalcUtilNet.GeoTools;
 using NavData_Interface.Objects;
-using NavData_Interface.Objects.Fix;
+using NavData_Interface.Objects.Fixes;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;

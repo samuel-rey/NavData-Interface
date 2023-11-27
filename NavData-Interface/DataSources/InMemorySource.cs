@@ -1,5 +1,5 @@
 ﻿using AviationCalcUtilNet.GeoTools;
-using NavData_Interface.Objects.Fix;
+using NavData_Interface.Objects.Fixes;
 using NavData_Interface.Objects;
 using System;
 using System.Collections.Generic;

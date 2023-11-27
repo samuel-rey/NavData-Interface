@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NavData_Interface.Objects.Fix.Navaid
+namespace NavData_Interface.Objects.Fixes.Navaids
 {
     public class VhfNavaid : Navaid
     {

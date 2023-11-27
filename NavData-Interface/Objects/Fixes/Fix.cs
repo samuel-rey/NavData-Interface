@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NavData_Interface.Objects.Fix
+namespace NavData_Interface.Objects.Fixes
 {
     public abstract class Fix
     {
