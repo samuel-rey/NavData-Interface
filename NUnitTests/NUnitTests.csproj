@@ -20,5 +20,11 @@
   <ItemGroup>
     <ProjectReference Include="..\NavData-Interface\NavData-Interface.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="e_dfd_2311.s3db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
