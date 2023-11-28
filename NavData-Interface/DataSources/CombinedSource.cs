@@ -24,9 +24,10 @@ namespace NavData_Interface.DataSources
 
         public CombinedSource(string id, DataSource dataSource) : this(id)
         {
-            _sources = new SortedList<int, DataSource>();
-
-            _sources.Add(0, dataSource);
+            _sources = new SortedList<int, DataSource>
+            {
+                { 0, dataSource }
+            };
         }
 
         /// <summary>
@@ -72,6 +73,25 @@ namespace NavData_Interface.DataSources
                 _sources.Add(priority, source);
 
                 return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the source with the specified Id from the list of sources.
+        /// </summary>
+        /// <param name="sourceId">The Id of the source to remove</param>
+        /// <returns>true if the source was found and removed, false if the source wasn't found in the sources list</returns>
+        public bool RemoveSource(string sourceId)
+        {
+            foreach(var source in _sources)
+            {
+                if (source.Value.GetId() == sourceId)
+                {
+                    _sources.Remove(source.Key);
+                    return true;
+                }
             }
 
             return false;
