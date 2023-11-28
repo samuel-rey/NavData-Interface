@@ -53,5 +53,10 @@ namespace NavData_Interface.DataSources
 
             return false;
         }
+
+        public override int GetHashCode()
+        {
+            return GetId().GetHashCode();
+        }
     }
 }
