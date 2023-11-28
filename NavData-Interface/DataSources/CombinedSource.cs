@@ -108,20 +108,23 @@ namespace NavData_Interface.DataSources
 
             foreach(var source in _sources.Values)
             {
-                fixesInSource: foreach(var fix in source.GetFixesByIdentifier(identifier))
+                foreach(var fix in source.GetFixesByIdentifier(identifier))
                 {
+                    // before adding each fix in the list, we have to check if this fix is already in the list
                     for (int i = 0; i < lastIndexToCheck; i++)
                     {
                         if (GeoPoint.DistanceM(fixes[i].Location, fix.Location) < 1000)
                         {
-                            goto fixesInSource;
+                            goto nextFixInSource;
                         }
                     }
 
                     fixes.Add(fix);
+
+                    nextFixInSource: { }
                 }
 
-                lastIndexToCheck = fixes.Count - 1;
+                lastIndexToCheck = fixes.Count;
             }
 
             return fixes;
