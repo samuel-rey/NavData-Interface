@@ -41,7 +41,7 @@ namespace NavData_Interface_Tests
 
         public static void TestGetClosestWaypoint()
         {
-            var navDataInterface = new CombinedSource(new DFDSource("e_dfd_2301.s3db"));
+            var navDataInterface = new CombinedSource("test_sources", new DFDSource("e_dfd_2301.s3db"));
             GeoPoint point = new(51.5074, -0.1278); // Example location (London)
             string identifier = "WILLO";
             var closestWaypoint = navDataInterface.GetClosestFixByIdentifier(point, identifier);
@@ -93,12 +93,11 @@ namespace NavData_Interface_Tests
             if (localizer == null)
             {
                 throw new Exception();
-            } else
+            }
+            else
             {
                 Console.WriteLine(localizer);
             }
         }
-
-       
     }
 }

@@ -1,6 +1,6 @@
 using AviationCalcUtilNet.GeoTools;
 using NavData_Interface.DataSources;
-using System.Security.Cryptography;
+using NavData_Interface.Objects.Fixes;
 
 namespace NUnitTests
 {
@@ -51,6 +51,36 @@ namespace NUnitTests
             var point = new GeoPoint(-27.058760, 83.227773);
             var closestAirport = navDataInterface.GetClosestAirportWithinRadius(point, 100_000);
             Assert.That(closestAirport,  Is.Null);
+        }
+
+        [Test]
+        public static void TestCombinedSourcePriorities()
+        {
+            var navigraphSource = new DFDSource("e_dfd_2301.s3db");
+            var custom1 = new InMemorySource("custom1");
+            var custom2 = new InMemorySource("custom2");
+
+            var navdataInterface = new CombinedSource("test_sources", navigraphSource, custom1, custom2);
+
+            var badWillo = new Waypoint("WILLO", new GeoPoint(50.985, -0.1912));
+            custom1.AddFix(badWillo);
+
+            var weirdPoint1 = new Waypoint("NOEXIST", new GeoPoint(0.001, 0.001));
+            custom1.AddFix(weirdPoint1);
+
+            var weirdPoint2 = new Waypoint("NOEXIST", new GeoPoint(0, 0));
+
+            custom2.AddFix(weirdPoint2);
+
+            var willoResults = navdataInterface.GetFixesByIdentifier("WILLO");
+            Assert.That(willoResults[0] != badWillo && willoResults[0] != null);
+
+            var weirdPointResults = navdataInterface.GetFixesByIdentifier("NOEXIST");
+            Assert.That(weirdPointResults[0] == weirdPoint1 && weirdPointResults.Count == 1);
+
+            navdataInterface.ChangePriority("custom1", 100);
+            weirdPointResults = navdataInterface.GetFixesByIdentifier("NOEXIST");
+            Assert.That(weirdPointResults[0] == weirdPoint2 && weirdPointResults.Count == 1);
         }
     }
 }
