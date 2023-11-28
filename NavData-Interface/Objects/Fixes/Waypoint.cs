@@ -33,5 +33,9 @@ namespace NavData_Interface.Objects.Fixes
                 Region_code = region_code;
             }
         }
+
+        public Waypoint(string identifier, GeoPoint location) : this(identifier, location, "", "") {
+        
+        }
     }
 }
