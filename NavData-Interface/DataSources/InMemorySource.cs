@@ -3,7 +3,6 @@ using NavData_Interface.Objects.Fixes;
 using NavData_Interface.Objects;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace NavData_Interface.DataSources
 {
@@ -14,12 +13,21 @@ namespace NavData_Interface.DataSources
         private List<PublishedHold> _pubHolds;
         private List<Airport> _airports;
 
-        public InMemorySource()
+        private string _id;
+
+        public override string GetId()
+        {
+            return _id;
+        }
+
+        public InMemorySource(string id)
         {
             _fixes = new List<Fix>();
             _locs = new List<Localizer>();
             _pubHolds = new List<PublishedHold>();
             _airports = new List<Airport>();
+
+            _id = id;
         }
 
         public void AddFix(Fix fix)

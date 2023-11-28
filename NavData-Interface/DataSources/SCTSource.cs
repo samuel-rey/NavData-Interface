@@ -15,6 +15,11 @@ namespace NavData_Interface.DataSources
 
         public string FileName {get; private set; }
 
+        public override string GetId()
+        {
+            return FileName;
+        }
+
         public SCTSource(string filename)
         {
             _fixes = new List<Fix>();

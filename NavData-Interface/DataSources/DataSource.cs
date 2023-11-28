@@ -10,6 +10,8 @@ namespace NavData_Interface.DataSources
 {
     public abstract class DataSource
     {
+        public abstract string GetId();
+
         public abstract List<Fix> GetFixesByIdentifier(string identifier);
 
         public abstract Localizer GetLocalizerFromAirportRunway(string airportIdentifier, string runwayIdentifier);
@@ -33,6 +35,23 @@ namespace NavData_Interface.DataSources
             }
 
             return closestFix;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == this)
+            {
+                return true;
+            }
+
+            if (obj is DataSource)
+            {
+                var otherSource = (DataSource)obj;
+
+                return otherSource.GetId() == this.GetId();
+            }
+
+            return false;
         }
     }
 }

@@ -18,6 +18,11 @@ namespace NavData_Interface.DataSources
 
         public string Airac_version { get; }
 
+        public override string GetId()
+        {
+            return Airac_version;
+        }
+
         /// <summary>
         /// Creates a new DFD data source.
         /// </summary>
