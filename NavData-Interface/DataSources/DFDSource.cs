@@ -9,6 +9,7 @@ using NavData_Interface.DataSources.DFDUtility;
 using NavData_Interface.DataSources.DFDUtility.Factory;
 using NavData_Interface.Objects;
 using AviationCalcUtilNet.MathTools;
+using NavData_Interface.Objects.Fixes.Waypoints;
 
 namespace NavData_Interface.DataSources
 {

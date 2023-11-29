@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NavData_Interface.Objects.Fixes
+namespace NavData_Interface.Objects.Fixes.Waypoints
 {
     public class Waypoint : Fix
     {
@@ -15,11 +15,10 @@ namespace NavData_Interface.Objects.Fixes
         public string Region_code { get; }
 
         // public WaypointType type { get; }
-        // public WaypointUsage usage { get; }
 
-        public Waypoint(string identifier, GeoPoint location, string area_code, string icao_code) : this(identifier, location, area_code, icao_code, "") { }
+        public Waypoint(string identifier, string name, GeoPoint location, string area_code, string icao_code) : this(identifier, name, location, area_code, icao_code, "") { }
 
-        public Waypoint(string identifier, GeoPoint location, string area_code, string icao_code, string region_code) : base(identifier, location)
+        public Waypoint(string identifier, string name, GeoPoint location, string area_code, string icao_code, string region_code) : base(identifier, name, location)
         {
             Area_code = area_code;
             Icao_code = icao_code;
@@ -27,15 +26,17 @@ namespace NavData_Interface.Objects.Fixes
             if (region_code == "")
             {
                 IsTerminal = false;
-            } else
+            }
+            else
             {
                 IsTerminal = true;
                 Region_code = region_code;
             }
         }
 
-        public Waypoint(string identifier, GeoPoint location) : this(identifier, location, "", "") {
-        
+        public Waypoint(string identifier, string name, GeoPoint location) : this(identifier, name, location, "", "")
+        {
+
         }
     }
 }

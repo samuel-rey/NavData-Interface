@@ -21,8 +21,6 @@ namespace NavData_Interface.Objects.Fixes
 
         // This is the three-letter identifier used for some US and Canada airports.
         public string Three_letter_id { get; }
-
-        public string Name { get; }
         
         public bool IsIfr { get; }
 
@@ -55,12 +53,11 @@ namespace NavData_Interface.Objects.Fixes
             int speed_limit,
             int speed_limit_altitude,
             string iata_ata_designator
-            ) : base(identifier, location)
+            ) : base(identifier, name, location)
         {
             Area_code = area_code;
             Icao_code = icao_code;
             Three_letter_id = three_letter_id;
-            Name = name;
             IsIfr = isIfr;
             Longest_runway_surface = longest_runway_surface;
             Elevation = elevation;
