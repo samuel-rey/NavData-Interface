@@ -131,7 +131,8 @@ namespace NavData_Interface.DataSources.DFDUtility
                     break;
                 case 'W':
                     break;
-
+                case ' ':
+                    break;
                 default:
                     throw new FormatException("The second column of the waypoint typeString is invalid");
             }
@@ -140,4 +141,3 @@ namespace NavData_Interface.DataSources.DFDUtility
         }
     }
 }
-    

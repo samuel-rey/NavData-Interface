@@ -17,7 +17,7 @@ namespace NavData_Interface.Objects.Fixes.Waypoints
 
     public class WaypointType
     {
-        public Kind WaypointClass { get; }
+        public Kind Waypoint_class { get; }
 
         public bool IsIaf { get; }
 
@@ -37,7 +37,7 @@ namespace NavData_Interface.Objects.Fixes.Waypoints
 
         public WaypointType(Kind waypointClass, bool isIaf, bool isFaf, bool isIf, bool isMaf, bool isFac, bool isStepdownFix, bool isOceanicEntryExit)
         {
-            WaypointClass = waypointClass;
+            Waypoint_class = waypointClass;
             IsIaf = isIaf;
             IsFaf = isFaf;
             IsIf = isIf;
@@ -49,7 +49,7 @@ namespace NavData_Interface.Objects.Fixes.Waypoints
 
         public WaypointType()
         {
-            WaypointClass = Kind.Rnav;
+            Waypoint_class = Kind.Rnav;
             IsIaf = false;
             IsFaf = false;
             IsIf = false;
