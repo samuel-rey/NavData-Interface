@@ -33,50 +33,30 @@ namespace NavData_Interface.Objects.Fixes.Waypoints
 
         public bool IsOceanicEntryExit { get; }
 
-        public WaypointType(string typeString)
+        public WaypointType(Kind waypointClass) : this(waypointClass, false, false, false, false, false, false, false) { }
+
+        public WaypointType(Kind waypointClass, bool isIaf, bool isFaf, bool isIf, bool isMaf, bool isFac, bool isStepdownFix, bool isOceanicEntryExit)
         {
-            if (typeString.Length != 3)
-            {
-                throw new FormatException("The waypoint type is invalid because the type field is too long");
-            }
+            WaypointClass = waypointClass;
+            IsIaf = isIaf;
+            IsFaf = isFaf;
+            IsIf = isIf;
+            IsMaf = isMaf;
+            IsFac = isFac;
+            IsStepdownFix = isStepdownFix;
+            IsOceanicEntryExit = isOceanicEntryExit;
+        }
 
-            switch (typeString[0])
-            {
-                case 'A':
-                    WaypointClass = Kind.RFCenter;
-
-                    break;
-                case 'C':
-                    WaypointClass = Kind.Rnav; 
-                    break;
-                case 'M':
-                    WaypointClass = Kind.Mm;
-
-                    break;
-                case 'N':
-                    WaypointClass = Kind.Ndb;
-                    break;
-                case 'O':
-                    WaypointClass = Kind.Om;
-                    break;
-                case 'R':
-                    WaypointClass = Kind.Other;
-                    break;
-                case 'U':
-                    WaypointClass = Kind.Other;
-                    break;
-                case 'V':
-                    WaypointClass = Kind.Vfr;
-                    break;
-                case 'W':
-                    WaypointClass = Kind.Rnav;
-                    break;
-
-                default:
-                    throw new FormatException("The first column of the waypoint type is invalid");
-
-
-            }
+        public WaypointType()
+        {
+            WaypointClass = Kind.Rnav;
+            IsIaf = false;
+            IsFaf = false;
+            IsIf = false;
+            IsMaf = false;
+            IsFac = false;
+            IsStepdownFix = false;
+            IsOceanicEntryExit = false;
         }
     }
 }

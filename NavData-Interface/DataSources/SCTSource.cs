@@ -5,6 +5,7 @@ using AviationCalcUtilNet.GeoTools;
 using NavData_Interface.Objects;
 using NavData_Interface.Objects.Fixes;
 using NavData_Interface.Objects.Fixes.Navaids;
+using NavData_Interface.Objects.Fixes.Waypoints;
 
 namespace NavData_Interface.DataSources
 {
@@ -82,7 +83,7 @@ namespace NavData_Interface.DataSources
                             if (items.Length >= 3)
                             {
                                 GeoUtil.ConvertVrcToDecimalDegs(items[1], items[2], out double lat, out double lon);
-                                _fixes.Add(new Waypoint(items[0], items[0], new GeoPoint(lat, lon), "", ""));
+                                _fixes.Add(new Waypoint(items[0], items[0], new GeoPoint(lat, lon)));
                             }
                             break;
                     }

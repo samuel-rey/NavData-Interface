@@ -1,6 +1,7 @@
 using AviationCalcUtilNet.GeoTools;
 using NavData_Interface.DataSources;
 using NavData_Interface.Objects.Fixes;
+using NavData_Interface.Objects.Fixes.Waypoints;
 
 namespace NUnitTests
 {
